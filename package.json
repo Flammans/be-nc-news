@@ -11,15 +11,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/northcoders/be-nc-news.git"
+    "url": "git+https://github.com/Flammans/be-nc-news.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Viktor Khasenko",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/northcoders/be-nc-news/issues"
+    "url": "https://github.com/Flammans/be-nc-news/issues"
   },
-  "homepage": "https://github.com/northcoders/be-nc-news#readme",
+  "homepage": "https://github.com/Flammans/be-nc-news#readme",
   "devDependencies": {
     "husky": "^8.0.2",
     "jest": "^27.5.1",
