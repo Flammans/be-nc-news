@@ -9,7 +9,7 @@ class AppError extends Error {
 
 class BadRequestError extends AppError {
   constructor(message) {
-    super(message);
+    super(message || 'Bad Request');
 
     this.name = "BadRequestError";
     this.code = 400;
@@ -18,7 +18,7 @@ class BadRequestError extends AppError {
 
 class NotFoundError extends AppError {
   constructor(message) {
-    super(message);
+    super(message || 'Not Found');
 
     this.name = "NotFoundError";
     this.code = 404;
@@ -27,7 +27,7 @@ class NotFoundError extends AppError {
 
 class MethodNotAllowedError extends AppError {
   constructor(message) {
-    super(message);
+    super(message || 'Method Not Allowed');
 
     this.name = "MethodNotAllowedError";
     this.code = 405;
@@ -36,7 +36,7 @@ class MethodNotAllowedError extends AppError {
 
 class TeapotError extends AppError {
   constructor(message) {
-    super(message);
+    super(message || 'I\'m a teapot');
 
     this.name = "TeapotError";
     this.code = 418;
@@ -45,7 +45,7 @@ class TeapotError extends AppError {
 
 class UnprocessableEntityError extends AppError {
   constructor(message) {
-    super(message);
+    super(message || 'Unprocessable Entity');
 
     this.name = "UnprocessableEntityError";
     this.code = 422;
@@ -54,7 +54,7 @@ class UnprocessableEntityError extends AppError {
 
 class InternalServerError extends AppError {
   constructor(message) {
-    super(message);
+    super(message || 'Internal Server Error');
 
     this.name = "InternalServerError";
     this.code = 500;
