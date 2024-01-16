@@ -39,7 +39,7 @@ describe('GET /api/topics', () => {
       });
   });
 });
-describe('/api/articles/:article_id', () => {
+describe('GET /api/articles/:article_id', () => {
   test('GET:200 sends a single article to the client', () => {
     return request(app).get('/api/articles/1').expect(200).then(({ body }) => {
       expect(body.article.article_id).toBe(1);
@@ -53,46 +53,40 @@ describe('/api/articles/:article_id', () => {
         'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700');
     });
   });
-  test(
-    'GET:404 sends an appropriate status and error message when given a valid but non-existent id',
-    () => {
-      return request(app)
-        .get('/api/articles/999')
-        .expect(404)
-        .then(({ body }) => {
-          expect(body.msg).toBe('Article does not exist');
-        });
-    });
-  test(
-    'GET:400 sends an appropriate status and error message when given an invalid id',
-    () => {
-      return request(app)
-        .get('/api/articles/not-a-article')
-        .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe('Bad Request');
-        });
-    });
-  test(
-    'The \'/api\' endpoint to include a description of this new \'/api/articles/:article_id\' endpoint.',
-    () => {
-      return request(app)
-        .get('/api')
-        .set('Accept', 'application/json')
-        .expect('Content-Type', /json/)
-        .expect(200)
-        .then(({ body }) => {
-          expect(
-            body.endpoints['GET /api/articles/:article_id'].exampleResponse)
-            .toBeInstanceOf(Object);
-          expect(
-            body.endpoints['GET /api/articles/:article_id'].exampleResponse)
-            .toEqual(
-              endpoints['GET /api/articles/:article_id'].exampleResponse);
-        });
-    });
+  test('GET:404 sends an appropriate status and error message when given a valid but non-existent id', () => {
+    return request(app)
+      .get('/api/articles/999')
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Article does not exist');
+      });
+  });
+  test('GET:400 sends an appropriate status and error message when given an invalid id', () => {
+    return request(app)
+      .get('/api/articles/not-a-article')
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Bad Request');
+      });
+  });
+  test('The \'/api\' endpoint to include a description of this new \'/api/articles/:article_id\' endpoint.', () => {
+    return request(app)
+      .get('/api')
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .then(({ body }) => {
+        expect(
+          body.endpoints['GET /api/articles/:article_id'].exampleResponse)
+          .toBeInstanceOf(Object);
+        expect(
+          body.endpoints['GET /api/articles/:article_id'].exampleResponse)
+          .toEqual(
+            endpoints['GET /api/articles/:article_id'].exampleResponse);
+      });
+  });
 });
-describe('/api/articles', () => {
+describe('GET /api/articles', () => {
   test('GET:200 sends articles to the client', () => {
     return request(app).get('/api/articles').expect(200).then(({ body }) => {
       expect(body.articles).toBeInstanceOf(Array);
@@ -110,44 +104,38 @@ describe('/api/articles', () => {
       });
     });
   });
-  test(
-    'GET:200 sends articles to the client sorted by date in descending order',
-    () => {
-      return request(app).get('/api/articles').expect(200).then(({ body }) => {
-        const sortedArray = [...body.articles];
-        sortedArray.sort((a, b) => {
-          return Date.parse(b.created_at) - Date.parse(a.created_at);
-        });
-        expect(body.articles).toEqual(sortedArray);
+  test('GET:200 sends articles to the client sorted by date in descending order', () => {
+    return request(app).get('/api/articles').expect(200).then(({ body }) => {
+      const sortedArray = [...body.articles];
+      sortedArray.sort((a, b) => {
+        return Date.parse(b.created_at) - Date.parse(a.created_at);
       });
+      expect(body.articles).toEqual(sortedArray);
     });
-  test(
-    'GET:400 sends an appropriate status and error message when given an invalid id',
-    () => {
-      return request(app)
-        .get('/api/articles/not-right-path')
-        .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe('Bad Request');
-        });
-    });
-  test(
-    'The \'/api\' endpoint to include a description of this new \'/api/articles\' endpoint.',
-    () => {
-      return request(app)
-        .get('/api')
-        .set('Accept', 'application/json')
-        .expect('Content-Type', /json/)
-        .expect(200)
-        .then(({ body }) => {
-          expect(body.endpoints['GET /api/articles'].exampleResponse)
-            .toBeInstanceOf(Object);
-          expect(body.endpoints['GET /api/articles'].exampleResponse)
-            .toEqual(endpoints['GET /api/articles'].exampleResponse);
-        });
-    });
+  });
+  test('GET:400 sends an appropriate status and error message when given an invalid id', () => {
+    return request(app)
+      .get('/api/articles/not-right-path')
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Bad Request');
+      });
+  });
+  test('The \'/api\' endpoint to include a description of this new \'/api/articles\' endpoint.', () => {
+    return request(app)
+      .get('/api')
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.endpoints['GET /api/articles'].exampleResponse)
+          .toBeInstanceOf(Object);
+        expect(body.endpoints['GET /api/articles'].exampleResponse)
+          .toEqual(endpoints['GET /api/articles'].exampleResponse);
+      });
+  });
 });
-describe('/api/articles/:article_id/comments', () => {
+describe('GET /api/articles/:article_id/comments', () => {
   test('GET:200 sends comments by article_id to the client', () => {
     return request(app)
       .get('/api/articles/1/comments')
@@ -166,56 +154,96 @@ describe('/api/articles/:article_id/comments', () => {
         });
       });
   });
-  test(
-    'GET:200 sends comments to the client sorted by date in descending order',
-    () => {
-      return request(app)
-        .get('/api/articles/1/comments')
-        .expect(200)
-        .then(({ body }) => {
-          const sortedArray = [...body.comments];
-          sortedArray.sort((a, b) => {
-            return Date.parse(b.created_at) - Date.parse(a.created_at);
-          });
-          expect(body.comments).toEqual(sortedArray);
+  test('GET:200 sends comments to the client sorted by date in descending order', () => {
+    return request(app)
+      .get('/api/articles/1/comments')
+      .expect(200)
+      .then(({ body }) => {
+        const sortedArray = [...body.comments];
+        sortedArray.sort((a, b) => {
+          return Date.parse(b.created_at) - Date.parse(a.created_at);
         });
-    });
-  test(
-    'GET:400 sends an appropriate status and error message when given an invalid id',
-    () => {
-      return request(app)
-        .get('/api/articles/not-valid-id/comments')
-        .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe('Bad Request');
-        });
-    });
-  test(
-    'GET:404 sends an appropriate status and error message when given a valid but non-existent id',
-    () => {
-      return request(app)
-        .get('/api/articles/999/comments')
-        .expect(404)
-        .then(({ body }) => {
-          expect(body.msg).toBe('Comments does not exist');
-        });
-    });
-  test(
-    'The \'/api\' endpoint to include a description of this new \'/api/articles/:article_id/comments\' endpoint.',
-    () => {
-      return request(app)
-        .get('/api')
-        .set('Accept', 'application/json')
-        .expect('Content-Type', /json/)
-        .expect(200)
-        .then(({ body }) => {
-          expect(
-            body.endpoints['GET /api/articles/:article_id/comments'].exampleResponse)
-            .toBeInstanceOf(Object);
-          expect(
-            body.endpoints['GET /api/articles/:article_id/comments'].exampleResponse)
-            .toEqual(
-              endpoints['GET /api/articles/:article_id/comments'].exampleResponse);
-        });
-    });
+        expect(body.comments).toEqual(sortedArray);
+      });
+  });
+  test('GET:400 sends an appropriate status and error message when given an invalid id', () => {
+    return request(app)
+      .get('/api/articles/not-valid-id/comments')
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Bad Request');
+      });
+  });
+  test('GET:404 sends an appropriate status and error message when given a valid but non-existent id', () => {
+    return request(app)
+      .get('/api/articles/999/comments')
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Comments does not exist');
+      });
+  });
+  test('The \'/api\' endpoint to include a description of this new \'/api/articles/:article_id/comments\' endpoint.', () => {
+    return request(app)
+      .get('/api')
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .then(({ body }) => {
+        expect(
+          body.endpoints['GET /api/articles/:article_id/comments'].exampleResponse)
+          .toBeInstanceOf(Object);
+        expect(
+          body.endpoints['GET /api/articles/:article_id/comments'].exampleResponse)
+          .toEqual(
+            endpoints['GET /api/articles/:article_id/comments'].exampleResponse);
+      });
+  });
+});
+describe('POST /api/articles/:article_id/comments', () => {
+  test('POST:200 should insert new comment to DB and return it', () => {
+    return request(app)
+      .post('/api/articles/1/comments').send({ username: 'butter_bridge', body: 'a cat' })
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comment).toBeInstanceOf(Object);
+        expect(typeof body.comment.comment_id).toBe('number');
+        expect(typeof body.comment.body).toBe('string');
+        expect(typeof body.comment.article_id).toBe('number');
+        expect(typeof body.comment.author).toBe('string');
+        expect(typeof body.comment.votes).toBe('number');
+        expect(typeof body.comment.created_at).toBe('string');
+      });
+  });
+  test('POST:400 sends an appropriate status and error message when given an invalid article_id', () => {
+    return request(app)
+      .post('/api/articles/not-valid-id/comments').send({ username: 'butter_bridge', body: 'a cat' })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Bad Request');
+      });
+  });
+  test('POST:500 sends an appropriate status and error message when given an invalid username', () => {
+    return request(app)
+      .post('/api/articles/1/comments').send({ username: 'this_user_name_doesn\'t_exist', body: 'I\'m not real user' })
+      .expect(500)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Internal Server Error');
+      });
+  });
+  test('The \'/api\' endpoint to include a description of this new POST \'/api/articles/:article_id/comments\' endpoint.', () => {
+    return request(app)
+      .get('/api')
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .then(({ body }) => {
+        expect(
+          body.endpoints['POST /api/articles/:article_id/comments'].exampleResponse)
+          .toBeInstanceOf(Object);
+        expect(
+          body.endpoints['POST /api/articles/:article_id/comments'].exampleResponse)
+          .toEqual(
+            endpoints['POST /api/articles/:article_id/comments'].exampleResponse);
+      });
+  });
 });

@@ -35,19 +35,4 @@ const fetchArticles = () => {
   });
 };
 
-const fetchCommentsByArticleId = (article_id) => {
-  if (!/^\d+$/.test(article_id)) {
-    throw new BadRequestError();
-  }
-
-  return db.query(
-    'SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC;',
-    [article_id]).then((result) => {
-    if (!result.rows[0]) {
-      throw new NotFoundError('Comments does not exist');
-    }
-    return result.rows;
-  });
-};
-
-module.exports = { fetchArticleById, fetchArticles, fetchCommentsByArticleId };
+module.exports = { fetchArticleById, fetchArticles };
