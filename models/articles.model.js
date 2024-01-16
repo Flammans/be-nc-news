@@ -17,4 +17,26 @@ const fetchArticleById = (article_id) => {
     });
 }
 
-module.exports = { fetchArticleById };
+const fetchArticles = () => {
+
+  return db
+    .query(`select author, title, article_id, topic, created_at, votes, article_img_url,
+      (
+       SELECT count(*)
+       FROM comments
+       WHERE comments.article_id = articles.article_id
+      ) AS comment_count
+       FROM articles
+       ORDER BY created_at DESC;`)
+    .then((result) => {
+      if (!result.rows[0]) {
+        throw new NotFoundError('Articles does not exist');
+      }
+      return result.rows.map(row => {
+        row.comment_count = parseInt(row.comment_count);
+        return row;
+      })
+    });
+}
+
+module.exports = { fetchArticleById, fetchArticles };
