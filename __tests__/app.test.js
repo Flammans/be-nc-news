@@ -49,8 +49,8 @@ describe('GET /api/articles/:article_id', () => {
       expect(body.article.topic).toBe('mitch');
       expect(body.article.created_at).toBe('2020-07-09T20:11:00.000Z');
       expect(body.article.votes).toBe(100);
-      expect(body.article.article_img_url).toBe(
-        'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700');
+      expect(body.article.article_img_url)
+        .toBe('https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700');
     });
   });
   test('GET:404 sends an appropriate status and error message when given a valid but non-existent id', () => {
@@ -279,6 +279,97 @@ describe('POST /api/articles/:article_id/comments', () => {
           body.endpoints['POST /api/articles/:article_id/comments'].exampleResponse)
           .toEqual(
             endpoints['POST /api/articles/:article_id/comments'].exampleResponse);
+      });
+  });
+});
+describe('PATCH /api/articles/:article_id', () => {
+  test('PATCH:201 should update votes in DB by article_id and return it', () => {
+    return request(app)
+      .patch('/api/articles/1').send({ inc_votes: 1 })
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.article).toBeInstanceOf(Object);
+        expect(typeof body.article.article_id).toBe('number');
+        expect(typeof body.article.title).toBe('string');
+        expect(typeof body.article.author).toBe('string');
+        expect(typeof body.article.topic).toBe('string');
+        expect(typeof body.article.created_at).toBe('string');
+        expect(typeof body.article.votes).toBe('number');
+        expect(typeof body.article.article_img_url).toBe('string');
+
+        expect(body.article.votes).toBe(101);
+      });
+  });
+  test('PATCH:201 should decrement the current article\'s vote property by 110', () => {
+    return request(app)
+      .patch('/api/articles/1').send({ inc_votes: -110 })
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.article.votes).toBe(-10);
+      });
+  });
+  test('PATCH:201 should return correct body', () => {
+    return request(app)
+      .patch('/api/articles/1').send({ inc_votes: 20 })
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.article.article_id).toBe(1);
+        expect(body.article.title).toBe('Living in the shadow of a great man');
+        expect(body.article.author).toBe('butter_bridge');
+        expect(body.article.body).toBe('I find this existence challenging');
+        expect(body.article.topic).toBe('mitch');
+        expect(body.article.created_at).toBe('2020-07-09T20:11:00.000Z');
+        expect(body.article.votes).toBe(120);
+        expect(body.article.article_img_url)
+          .toBe('https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700');
+      });
+  });
+  test('PATCH:201 should ignore unused keys', () => {
+    return request(app)
+      .patch('/api/articles/1').send({ inc_votes: 20, anotherKey: 'ignore-me' })
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.article.anotherKey).toBe(undefined);
+      });
+  });
+  test('PATCH:400 sends an appropriate status and error message when given an invalid article_id', () => {
+    return request(app)
+      .patch('/api/articles/not-valid-id').send({ inc_votes: 20 })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Bad Request');
+      });
+  });
+  test('PATCH:400 sends an appropriate status and error message when required key missed', () => {
+    return request(app)
+      .patch('/api/articles/1').send({})
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Bad Request');
+      });
+  });
+  test('PATCH:404 sends an appropriate status and error message when given an invalid article_id', () => {
+    return request(app)
+      .patch('/api/articles/999').send({ inc_votes: 35 })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Article does not exist');
+      });
+  });
+  test('The \'/api\' endpoint to include a description of this new PATCH \'/api/articles/:article_id\' endpoint.', () => {
+    return request(app)
+      .get('/api')
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .then(({ body }) => {
+        expect(
+          body.endpoints['PATCH /api/articles/:article_id'].exampleResponse)
+          .toBeInstanceOf(Object);
+        expect(
+          body.endpoints['PATCH /api/articles/:article_id'].exampleResponse)
+          .toEqual(
+            endpoints['PATCH /api/articles/:article_id'].exampleResponse);
       });
   });
 });
