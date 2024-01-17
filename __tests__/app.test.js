@@ -179,7 +179,7 @@ describe('GET /api/articles/:article_id/comments', () => {
       .get('/api/articles/999/comments')
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe('Comments does not exist');
+        expect(body.msg).toBe('Article does not exist');
       });
   });
   test('The \'/api\' endpoint to include a description of this new \'/api/articles/:article_id/comments\' endpoint.', () => {
@@ -200,10 +200,10 @@ describe('GET /api/articles/:article_id/comments', () => {
   });
 });
 describe('POST /api/articles/:article_id/comments', () => {
-  test('POST:200 should insert new comment to DB and return it', () => {
+  test('POST:201 should insert new comment to DB and return it', () => {
     return request(app)
       .post('/api/articles/1/comments').send({ username: 'butter_bridge', body: 'a cat' })
-      .expect(200)
+      .expect(201)
       .then(({ body }) => {
         expect(body.comment).toBeInstanceOf(Object);
         expect(typeof body.comment.comment_id).toBe('number');
@@ -214,6 +214,25 @@ describe('POST /api/articles/:article_id/comments', () => {
         expect(typeof body.comment.created_at).toBe('string');
       });
   });
+  test('POST:201 should return correct author name and comment\'s body', () => {
+    return request(app)
+      .post('/api/articles/1/comments').send({ username: 'butter_bridge', body: 'a cat' })
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.comment.body).toBe('a cat');
+        expect(body.comment.author).toBe('butter_bridge');
+      });
+  });
+  test('POST:201 should ignore unused keys', () => {
+    return request(app)
+      .post('/api/articles/1/comments').send({ username: 'butter_bridge', body: 'a cat', anotherKey: 'ignore-me' })
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.comment.body).toBe('a cat');
+        expect(body.comment.author).toBe('butter_bridge');
+        expect(body.comment.anotherKey).toBe(undefined);
+      });
+  });
   test('POST:400 sends an appropriate status and error message when given an invalid article_id', () => {
     return request(app)
       .post('/api/articles/not-valid-id/comments').send({ username: 'butter_bridge', body: 'a cat' })
@@ -222,12 +241,28 @@ describe('POST /api/articles/:article_id/comments', () => {
         expect(body.msg).toBe('Bad Request');
       });
   });
-  test('POST:500 sends an appropriate status and error message when given an invalid username', () => {
+  test('POST:400 sends an appropriate status and error message when required key missed', () => {
+    return request(app)
+      .post('/api/articles/1/comments').send({ body: 'a cat' })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Bad Request');
+      });
+  });
+  test('POST:400 sends an appropriate status and error message when given an invalid username', () => {
     return request(app)
       .post('/api/articles/1/comments').send({ username: 'this_user_name_doesn\'t_exist', body: 'I\'m not real user' })
-      .expect(500)
+      .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe('Internal Server Error');
+        expect(body.msg).toBe('Bad Request');
+      });
+  });
+  test('POST:404 sends an appropriate status and error message when given an invalid article_id', () => {
+    return request(app)
+      .post('/api/articles/999/comments').send({ username: 'butter_bridge', body: 'a cat' })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Article does not exist');
       });
   });
   test('The \'/api\' endpoint to include a description of this new POST \'/api/articles/:article_id/comments\' endpoint.', () => {

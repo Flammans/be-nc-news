@@ -13,17 +13,16 @@ const getCommentsByArticleId = (request, response, next) => {
 };
 
 const createCommentByArticleId = (request, response, next) => {
-  
+
   const comment = {
     article_id: request.params.article_id,
     author: request.body.username,
     body: request.body.body,
   };
 
-  fetchArticleById(comment.article_id)
-    .then(() => insertCommentByArticleId(comment))
+  insertCommentByArticleId(comment)
     .then((comment) => {
-      response.status(200).send({ comment });
+      response.status(201).send({ comment });
     })
     .catch((err) => {
       next(err);
