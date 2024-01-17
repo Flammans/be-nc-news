@@ -1,8 +1,8 @@
 const db = require('../db/connection');
 const { NotFoundError, BadRequestError } = require('../errors');
+const format = require('pg-format');
 
 const fetchArticleById = (article_id) => {
-
   if (!/^\d+$/.test(article_id)) {
     throw new BadRequestError();
   }
@@ -35,4 +35,21 @@ const fetchArticles = () => {
   });
 };
 
-module.exports = { fetchArticleById, fetchArticles };
+const patchVoteInArticleById = (article) => {
+  return fetchArticleById(article.article_id).then(() => {
+
+    if (!Number.isInteger(article.inc_votes)) {
+      throw new BadRequestError();
+    }
+
+    const sql = `UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *`;
+
+    return db.query(sql, [article.inc_votes, article.article_id]).catch(() => {
+      throw new BadRequestError();
+    });
+  }).then((result) => {
+    return result.rows[0];
+  });
+};
+
+module.exports = { fetchArticleById, fetchArticles, patchVoteInArticleById };

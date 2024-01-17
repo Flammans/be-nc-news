@@ -1,5 +1,5 @@
-const { fetchArticleById, fetchArticles } = require(
-  '../models/articles.model');
+const { fetchArticleById, fetchArticles, patchVoteInArticleById } = require('../models/articles.model');
+const { insertCommentByArticleId } = require('../models/comments.model');
 
 const getArticleById = (request, response, next) => {
 
@@ -20,4 +20,20 @@ const getArticles = (request, response, next) => {
   });
 };
 
-module.exports = { getArticleById, getArticles };
+const updateVoteInArticleById = (request, response, next) => {
+
+  const article = {
+    article_id: request.params.article_id,
+    inc_votes: request.body.inc_votes,
+  };
+
+  patchVoteInArticleById(article)
+    .then((article) => {
+      response.status(201).send({ article });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+module.exports = { getArticleById, getArticles, updateVoteInArticleById };
