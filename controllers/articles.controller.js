@@ -13,7 +13,15 @@ const getArticleById = (request, response, next) => {
 };
 
 const getArticles = (request, response, next) => {
-  fetchArticles().then((articles) => {
+
+  const articles = {
+    author: request.query.author,
+    topic: request.query.topic,
+    sort_by: request.query.sort_by,
+    order: request.query.order,
+  };
+
+  fetchArticles(articles).then((articles) => {
     response.status(200).send({ articles });
   }).catch((err) => {
     next(err);
