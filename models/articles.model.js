@@ -7,7 +7,12 @@ const fetchArticleById = (article_id) => {
     throw new BadRequestError();
   }
 
-  return db.query('SELECT * FROM articles WHERE article_id = $1;',
+  return db.query(`SELECT * , (
+            SELECT count(*)
+            FROM comments
+            WHERE comments.article_id = articles.article_id
+        ) AS comment_count
+        FROM articles WHERE article_id = $1;`,
     [article_id]).then((result) => {
     if (!result.rows[0]) {
       throw new NotFoundError('Article does not exist');
@@ -78,4 +83,25 @@ const patchVoteInArticleById = (article) => {
   });
 };
 
-module.exports = { fetchArticleById, fetchArticles, patchVoteInArticleById };
+const insertArticle = (article) => {
+  const sql = format(
+    'INSERT INTO articles (author, title, body, topic, article_img_url) VALUES %L RETURNING article_id;',
+    [
+      [
+        article.author,
+        article.title,
+        article.body,
+        article.topic,
+        article.article_img_url,
+      ],
+    ],
+  );
+
+  return db.query(sql).catch(() => {
+    throw new BadRequestError();
+  }).then((result) => {
+    return fetchArticleById(result.rows[0].article_id);
+  });
+};
+
+module.exports = { fetchArticleById, fetchArticles, patchVoteInArticleById, insertArticle };
