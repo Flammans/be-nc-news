@@ -575,6 +575,14 @@ describe('GET /api/users/:username', () => {
       expect(body.user).toHaveProperty('avatar_url', 'https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg');
     });
   });
+  test('GET:404 sends an appropriate status and error message when username doe\'s not exist', () => {
+    return request(app)
+      .get('/api/users/not-valid-username')
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe('User does not exist');
+      });
+  });
   test('The \'/api\' endpoint to include a description of this new \'/api/users\' endpoint.', () => {
     return request(app)
       .get('/api')
