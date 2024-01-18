@@ -124,6 +124,9 @@
       }
     }
   },
+  "DELETE /api/articles/:article_id": {
+    "description": "delete article from DB by article_id"
+  },
   "DELETE /api/comments/:comment_id": {
     "description": "delete comment from DB by comment_id"
   },

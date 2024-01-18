@@ -104,4 +104,11 @@ const insertArticle = (article) => {
   });
 };
 
-module.exports = { fetchArticleById, fetchArticles, patchVoteInArticleById, insertArticle };
+const deleteArticleByIdFromDB = (article_id) => {
+  return fetchArticleById(article_id).then(() => {
+    return db.query('DELETE FROM comments WHERE comment_id = $1;',
+      [article_id]);
+  });
+};
+
+module.exports = { fetchArticleById, fetchArticles, patchVoteInArticleById, insertArticle, deleteArticleByIdFromDB };

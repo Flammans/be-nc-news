@@ -1,4 +1,4 @@
-const { fetchArticleById, fetchArticles, patchVoteInArticleById, insertArticle } = require('../models/articles.model');
+const { fetchArticleById, fetchArticles, patchVoteInArticleById, insertArticle, deleteArticleByIdFromDB } = require('../models/articles.model');
 
 const getArticleById = (request, response, next) => {
 
@@ -51,7 +51,7 @@ const createArticle = (request, response, next) => {
     topic: request.body.topic,
     article_img_url: request.body.article_img_url,
   };
-  
+
   insertArticle(article)
     .then((article) => {
       response.status(201).send({ article });
@@ -61,4 +61,14 @@ const createArticle = (request, response, next) => {
     });
 };
 
-module.exports = { getArticleById, getArticles, updateVoteInArticleById, createArticle };
+const deleteArticleById = (request, response, next) => {
+  const { article_id } = request.params;
+
+  deleteArticleByIdFromDB(article_id).then(() => {
+    response.status(204).send();
+  }).catch((err) => {
+    next(err);
+  });
+};
+
+module.exports = { getArticleById, getArticles, updateVoteInArticleById, createArticle, deleteArticleById };
