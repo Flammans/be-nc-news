@@ -1,5 +1,5 @@
 const db = require('../db/connection');
-const { BadRequestError, NotFoundError } = require('../errors');
+const { NotFoundError } = require('../errors');
 const format = require('pg-format');
 
 const fetchUsers = () => {

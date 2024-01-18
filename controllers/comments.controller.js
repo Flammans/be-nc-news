@@ -1,6 +1,4 @@
-const { fetchCommentsByArticleId, insertCommentByArticleId, deleteCommentByIdFromDB } = require('../models/comments.model');
-const { BadRequestError, NotFoundError } = require('../errors');
-const db = require('../db/connection');
+const { fetchCommentsByArticleId, insertCommentByArticleId, deleteCommentByIdFromDB, patchVoteInCommentById } = require('../models/comments.model');
 
 const getCommentsByArticleId = (request, response, next) => {
   const { article_id } = request.params;
@@ -40,4 +38,20 @@ const deleteCommentById = (request, response, next) => {
   });
 };
 
-module.exports = { getCommentsByArticleId, createCommentByArticleId, deleteCommentById };
+const updateVoteInCommentById = (request, response, next) => {
+
+  const comment = {
+    comment_id: request.params.comment_id,
+    inc_votes: request.body.inc_votes,
+  };
+
+  patchVoteInCommentById(comment)
+    .then((comment) => {
+      response.status(201).send({ comment });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+module.exports = { getCommentsByArticleId, createCommentByArticleId, deleteCommentById, updateVoteInCommentById };
