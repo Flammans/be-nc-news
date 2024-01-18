@@ -1,5 +1,4 @@
-const { fetchArticleById, fetchArticles, patchVoteInArticleById } = require('../models/articles.model');
-const { insertCommentByArticleId } = require('../models/comments.model');
+const { fetchArticleById, fetchArticles, patchVoteInArticleById, insertArticle } = require('../models/articles.model');
 
 const getArticleById = (request, response, next) => {
 
@@ -44,4 +43,22 @@ const updateVoteInArticleById = (request, response, next) => {
     });
 };
 
-module.exports = { getArticleById, getArticles, updateVoteInArticleById };
+const createArticle = (request, response, next) => {
+  const article = {
+    author: request.body.author,
+    title: request.body.title,
+    body: request.body.body,
+    topic: request.body.topic,
+    article_img_url: request.body.article_img_url,
+  };
+  
+  insertArticle(article)
+    .then((article) => {
+      response.status(201).send({ article });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+module.exports = { getArticleById, getArticles, updateVoteInArticleById, createArticle };

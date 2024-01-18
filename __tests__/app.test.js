@@ -283,6 +283,125 @@ describe('GET /api/articles/:article_id/comments', () => {
       });
   });
 });
+describe('POST /api/articles', () => {
+
+  const newArticle = {
+    author: 'lurker',
+    title: 'We need more food',
+    body: 'Despite their aloof demeanor, our feline friends have a compelling way of reminding us that when it comes to food, there\'s simply never enough; a constant meow-chorus underscoring the eternal truth - cats believe in a world where more is always better.',
+    topic: 'cats',
+    article_img_url: 'https://images.unsplash.com/photo-1599572739984-8ae9388f23b5?q=80&w=3870&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+  };
+
+  test('POST:201 should insert new article to DB and return it', () => {
+    return request(app).post('/api/articles/').send(newArticle)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.article).toBeInstanceOf(Object);
+        expect(body.article).toHaveProperty('author');
+        expect(body.article).toHaveProperty('title');
+        expect(body.article).toHaveProperty('body');
+        expect(body.article).toHaveProperty('topic');
+        expect(body.article).toHaveProperty('article_img_url');
+        expect(body.article).toHaveProperty('article_id');
+        expect(body.article).toHaveProperty('votes');
+        expect(body.article).toHaveProperty('created_at');
+        expect(body.article).toHaveProperty('comment_count');
+        expect(typeof body.article.article_id).toBe('number');
+        expect(typeof body.article.votes).toBe('number');
+        expect(typeof body.article.created_at).toBe('string');
+        expect(typeof body.article.comment_count).toBe('string');
+
+        // GET:200 sends the new article to the client
+        return request(app).get('/api/articles/14').expect(200).then(({ body }) => {
+
+          expect(body.article).toBeInstanceOf(Object);
+          expect(body.article).toHaveProperty('author', 'lurker');
+          expect(body.article).toHaveProperty('title', 'We need more food');
+          expect(body.article)
+            .toHaveProperty('body',
+              'Despite their aloof demeanor, our feline friends have a compelling way of reminding us that when it comes to food, there\'s simply never enough; a constant meow-chorus underscoring the eternal truth - cats believe in a world where more is always better.');
+          expect(body.article).toHaveProperty('topic', 'cats');
+          expect(body.article)
+            .toHaveProperty('article_img_url',
+              'https://images.unsplash.com/photo-1599572739984-8ae9388f23b5?q=80&w=3870&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+          expect(body.article).toHaveProperty('article_id', 14);
+          expect(body.article).toHaveProperty('votes', 0);
+          expect(body.article).toHaveProperty('created_at');
+          expect(body.article).toHaveProperty('comment_count', '0');
+        });
+      });
+
+  });
+  test('POST:201 should ignore unused keys', () => {
+
+    newArticle.anotherKey = 'ignore-me';
+
+    return request(app)
+      .post('/api/articles').send(newArticle)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.article).toBeInstanceOf(Object);
+        expect(body.article).toHaveProperty('author');
+        expect(body.article).toHaveProperty('title');
+        expect(body.article).toHaveProperty('body');
+        expect(body.article).toHaveProperty('topic');
+        expect(body.article).toHaveProperty('article_img_url');
+        expect(body.article).toHaveProperty('article_id');
+        expect(body.article).toHaveProperty('votes');
+        expect(body.article).toHaveProperty('created_at');
+        expect(body.article).toHaveProperty('comment_count');
+        expect(body.article.anotherKey).toBe(undefined);
+      });
+  });
+  test('POST:400 sends an appropriate status and error message when required key missed', () => {
+    return request(app)
+      .post('/api/articles').send(
+        {
+          title: 'We need more food',
+          body: 'Despite their aloof demeanor, our feline friends have a compelling way of reminding us that when it comes to food, there\'s simply never enough; a constant meow-chorus underscoring the eternal truth - cats believe in a world where more is always better.',
+          topic: 'cats',
+          article_img_url: 'https://images.unsplash.com/photo-1599572739984-8ae9388f23b5?q=80&w=3870&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+        },
+      )
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Bad Request');
+      });
+  });
+  test('POST:400 sends an appropriate status and error message when given an invalid username(username does not exist in DataBase)', () => {
+    return request(app)
+      .post('/api/articles/1/comments').send(
+        {
+          author: 'Cat',
+          title: 'We need more food',
+          body: 'Despite their aloof demeanor, our feline friends have a compelling way of reminding us that when it comes to food, there\'s simply never enough; a constant meow-chorus underscoring the eternal truth - cats believe in a world where more is always better.',
+          topic: 'cats',
+          article_img_url: 'https://images.unsplash.com/photo-1599572739984-8ae9388f23b5?q=80&w=3870&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+        },
+      )
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Bad Request');
+      });
+  });
+  test('The \'/api\' endpoint to include a description of this new POST \'/api/article\' endpoint.', () => {
+    return request(app)
+      .get('/api')
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .then(({ body }) => {
+        expect(
+          body.endpoints['POST /api/article'].exampleResponse)
+          .toBeInstanceOf(Object);
+        expect(
+          body.endpoints['POST /api/article'].exampleResponse)
+          .toEqual(
+            endpoints['POST /api/article'].exampleResponse);
+      });
+  });
+});
 describe('POST /api/articles/:article_id/comments', () => {
   test('POST:201 should insert new comment to DB and return it', () => {
     return request(app)
@@ -581,7 +700,6 @@ describe('PATCH /api/comments/:comment_id', () => {
       });
   });
 });
-
 describe('DELETE /api/comments/:comment_id', () => {
   test('DELETE:204 should delete comment in DB by comment_id and return status 204 and no content.', () => {
     return request(app)
