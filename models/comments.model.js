@@ -53,9 +53,8 @@ const fetchCommentByCommentId = (comment_id) => {
 const deleteCommentByIdFromDB = (comment_id) => {
 
   return fetchCommentByCommentId(comment_id).then(() => {
-    db.query('DELETE FROM comments WHERE comment_id = $1;',
-      [comment_id]).then((result) => {
-    });
+    return db.query('DELETE FROM comments WHERE comment_id = $1;',
+      [comment_id]);
   });
 
 };

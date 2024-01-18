@@ -155,7 +155,7 @@ describe('GET /api/articles', () => {
       expect(body.articles[0]).toHaveProperty('comment_count', 2);
     });
   });
-  test('GET:200 sends all filtered articles when a topic is specified in the correct order', async () => {
+  test('GET:200 sends all filtered articles when a topic is specified in the correct order', () => {
     const topic = 'mitch';
     return request(app).get(`/api/articles?topic=${topic}`).expect(200).then(({ body }) => {
       expect(body.articles).toBeInstanceOf(Array);
@@ -168,7 +168,7 @@ describe('GET /api/articles', () => {
       });
     });
   });
-  test('GET:200 sends all filtered articles when a topic is specified in ascending order', async () => {
+  test('GET:200 sends all filtered articles when a topic is specified in ascending order', () => {
     const topic = 'mitch';
     return request(app).get(`/api/articles?topic=${topic}&order=ASC`).expect(200).then(({ body }) => {
       expect(body.articles).toBeInstanceOf(Array);
@@ -179,7 +179,7 @@ describe('GET /api/articles', () => {
       });
     });
   });
-  test('GET:200 sends all filtered articles when a topic is specified in ascending order should be sorted by \'title\' column', async () => {
+  test('GET:200 sends all filtered articles when a topic is specified in ascending order should be sorted by \'title\' column', () => {
     const topic = 'mitch';
     const sort_by = 'title';
     return request(app).get(`/api/articles?topic=${topic}&order=ASC&sort_by=${sort_by}`).expect(200).then(({ body }) => {
@@ -199,7 +199,7 @@ describe('GET /api/articles', () => {
         expect(body.msg).toBe('Bad Request');
       });
   });
-  test('GET:404 sends an appropriate status and error message when topic not exist', async () => {
+  test('GET:404 sends an appropriate status and error message when topic not exist', () => {
     const topic = 'dogs';
     return request(app).get(`/api/articles?topic=${topic}`).expect(404).then(({ body }) => {
       expect(body.msg).toBe('Articles does not exist');
@@ -593,6 +593,48 @@ describe('PATCH /api/articles/:article_id', () => {
           body.endpoints['PATCH /api/articles/:article_id'].exampleResponse)
           .toEqual(
             endpoints['PATCH /api/articles/:article_id'].exampleResponse);
+      });
+  });
+});
+describe('DELETE /api/articles/:article_id', () => {
+  test('DELETE:204 should delete article in DB by article_id and return status 204 and no content.', () => {
+    return request(app)
+      .delete('/api/articles/1')
+      .expect(204)
+      .then(({ body }) => {
+        expect(body).toEqual({});
+      });
+  });
+  test('DELETE:400 sends an appropriate status and error message when given an invalid article_id', () => {
+    return request(app)
+      .delete('/api/articles/not-valid-id')
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Bad Request');
+      });
+  });
+  test('DELETE:404 sends an appropriate status and error message when comment by article_id not exist', () => {
+    return request(app)
+      .delete('/api/articles/999')
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Article does not exist');
+      });
+  });
+  test('The \'/api\' endpoint to include a description of this new DELETE \'/api/articles/:article_id\' endpoint.', () => {
+    return request(app)
+      .get('/api')
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .then(({ body }) => {
+        expect(
+          body.endpoints['DELETE /api/articles/:article_id'])
+          .toBeInstanceOf(Object);
+        expect(
+          body.endpoints['DELETE /api/articles/:article_id'])
+          .toEqual(
+            endpoints['DELETE /api/articles/:article_id']);
       });
   });
 });
