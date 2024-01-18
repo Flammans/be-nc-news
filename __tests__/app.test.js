@@ -477,6 +477,111 @@ describe('PATCH /api/articles/:article_id', () => {
       });
   });
 });
+describe('PATCH /api/comments/:comment_id', () => {
+  test('PATCH:201 should update votes in DB by comment_id and return correct data type', () => {
+    return request(app)
+      .patch('/api/comments/1').send({ inc_votes: 1 })
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.comment).toBeInstanceOf(Object);
+        expect(body.comment).toHaveProperty('comment_id');
+        expect(body.comment).toHaveProperty('body');
+        expect(body.comment).toHaveProperty('article_id');
+        expect(body.comment).toHaveProperty('author');
+        expect(body.comment).toHaveProperty('created_at');
+        expect(body.comment).toHaveProperty('votes');
+        expect(typeof body.comment.comment_id).toBe('number');
+        expect(typeof body.comment.body).toBe('string');
+        expect(typeof body.comment.author).toBe('string');
+        expect(typeof body.comment.article_id).toBe('number');
+        expect(typeof body.comment.created_at).toBe('string');
+        expect(typeof body.comment.votes).toBe('number');
+      });
+  });
+  test('PATCH:201 should update votes in DB by comment_id and return correct data', () => {
+    return request(app)
+      .patch('/api/comments/1').send({ inc_votes: 2 })
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.comment).toHaveProperty('comment_id', 1);
+        expect(body.comment).toHaveProperty('body', 'Oh, I\'ve got compassion running out of my nose, pal! I\'m the Sultan of Sentiment!');
+        expect(body.comment).toHaveProperty('article_id', 9);
+        expect(body.comment).toHaveProperty('author', 'butter_bridge');
+        expect(body.comment).toHaveProperty('created_at', '2020-04-06T12:17:00.000Z');
+        expect(body.comment).toHaveProperty('votes', 18);
+      });
+  });
+  test('PATCH:201 should decrement the current comment\'s vote property by 100', () => {
+    return request(app)
+      .patch('/api/comments/1').send({ inc_votes: -100 })
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.comment.votes).toBe(-84);
+      });
+  });
+  test('PATCH:201 should return correct body', () => {
+    return request(app)
+      .patch('/api/comments/1').send({ inc_votes: 20 })
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.comment).toHaveProperty('comment_id', 1);
+        expect(body.comment).toHaveProperty('body', 'Oh, I\'ve got compassion running out of my nose, pal! I\'m the Sultan of Sentiment!');
+        expect(body.comment).toHaveProperty('article_id', 9);
+        expect(body.comment).toHaveProperty('author', 'butter_bridge');
+        expect(body.comment).toHaveProperty('created_at', '2020-04-06T12:17:00.000Z');
+        expect(body.comment).toHaveProperty('votes', 36);
+      });
+  });
+  test('PATCH:201 should ignore unused keys', () => {
+    return request(app)
+      .patch('/api/comments/1').send({ inc_votes: 20, anotherKey: 'ignore-me' })
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.comment.anotherKey).toBe(undefined);
+      });
+  });
+  test('PATCH:400 sends an appropriate status and error message when given an invalid comment_id', () => {
+    return request(app)
+      .patch('/api/comments/not-valid-id').send({ inc_votes: 20 })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Bad Request');
+      });
+  });
+  test('PATCH:400 sends an appropriate status and error message when required key missed', () => {
+    return request(app)
+      .patch('/api/articles/1').send({})
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Bad Request');
+      });
+  });
+  test('PATCH:404 sends an appropriate status and error message when comment by comment_id does not exist ', () => {
+    return request(app)
+      .patch('/api/comments/999').send({ inc_votes: 35 })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Comment does not exist');
+      });
+  });
+  test('The \'/api\' endpoint to include a description of this new PATCH \'/api/articles/:article_id\' endpoint.', () => {
+    return request(app)
+      .get('/api')
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .then(({ body }) => {
+        expect(
+          body.endpoints['PATCH /api/comments/:comment_id'].exampleResponse)
+          .toBeInstanceOf(Object);
+        expect(
+          body.endpoints['PATCH /api/comments/:comment_id'].exampleResponse)
+          .toEqual(
+            endpoints['PATCH /api/comments/:comment_id'].exampleResponse);
+      });
+  });
+});
+
 describe('DELETE /api/comments/:comment_id', () => {
   test('DELETE:204 should delete comment in DB by comment_id and return status 204 and no content.', () => {
     return request(app)
@@ -575,7 +680,7 @@ describe('GET /api/users/:username', () => {
       expect(body.user).toHaveProperty('avatar_url', 'https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg');
     });
   });
-  test('GET:404 sends an appropriate status and error message when username doe\'s not exist', () => {
+  test('GET:404 sends an appropriate status and error message when username does not exist', () => {
     return request(app)
       .get('/api/users/not-valid-username')
       .expect(404)

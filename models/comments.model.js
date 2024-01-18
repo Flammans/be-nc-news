@@ -57,7 +57,24 @@ const deleteCommentByIdFromDB = (comment_id) => {
       [comment_id]).then((result) => {
     });
   });
-  
+
 };
 
-module.exports = { fetchCommentsByArticleId, insertCommentByArticleId, fetchCommentByCommentId, deleteCommentByIdFromDB };
+const patchVoteInCommentById = (comment) => {
+  return fetchCommentByCommentId(comment.comment_id).then(() => {
+
+    if (!Number.isInteger(comment.inc_votes)) {
+      throw new BadRequestError();
+    }
+
+    const sql = `UPDATE comments SET votes = votes + $1 WHERE comment_id = $2 RETURNING *`;
+
+    return db.query(sql, [comment.inc_votes, comment.comment_id]).catch(() => {
+      throw new BadRequestError();
+    });
+  }).then((result) => {
+    return result.rows[0];
+  });
+};
+
+module.exports = { fetchCommentsByArticleId, insertCommentByArticleId, fetchCommentByCommentId, deleteCommentByIdFromDB, patchVoteInCommentById };
