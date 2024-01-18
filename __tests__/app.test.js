@@ -556,4 +556,37 @@ describe('GET /api/users', () => {
       });
   });
 });
+describe('GET /api/users/:username', () => {
+  test('GET:200 sends an object to the client with correct user data type', () => {
+    return request(app).get('/api/users/butter_bridge').expect(200).then(({ body }) => {
+      expect(body.user).toBeInstanceOf(Object);
+      expect(body.user).toHaveProperty('username');
+      expect(body.user).toHaveProperty('name');
+      expect(body.user).toHaveProperty('avatar_url');
+      expect(typeof body.user.username).toBe('string');
+      expect(typeof body.user.name).toBe('string');
+      expect(typeof body.user.avatar_url).toBe('string');
+    });
+  });
+  test('GET:200 sends an object to the client with correct data', () => {
+    return request(app).get('/api/users/butter_bridge').expect(200).then(({ body }) => {
+      expect(body.user).toHaveProperty('username', 'butter_bridge');
+      expect(body.user).toHaveProperty('name', 'jonny');
+      expect(body.user).toHaveProperty('avatar_url', 'https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg');
+    });
+  });
+  test('The \'/api\' endpoint to include a description of this new \'/api/users\' endpoint.', () => {
+    return request(app)
+      .get('/api')
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.endpoints['GET /api/users/:username'].exampleResponse)
+          .toBeInstanceOf(Object);
+        expect(body.endpoints['GET /api/users/:username'].exampleResponse)
+          .toEqual(endpoints['GET /api/users/:username'].exampleResponse);
+      });
+  });
+});
 
