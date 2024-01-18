@@ -283,12 +283,19 @@ describe('POST /api/articles/:article_id/comments', () => {
   });
 });
 describe('PATCH /api/articles/:article_id', () => {
-  test('PATCH:201 should update votes in DB by article_id and return it', () => {
+  test('PATCH:201 should update votes in DB by article_id and return correct data type', () => {
     return request(app)
       .patch('/api/articles/1').send({ inc_votes: 1 })
       .expect(201)
       .then(({ body }) => {
         expect(body.article).toBeInstanceOf(Object);
+        expect(body.article).toHaveProperty('article_id');
+        expect(body.article).toHaveProperty('title');
+        expect(body.article).toHaveProperty('author');
+        expect(body.article).toHaveProperty('topic');
+        expect(body.article).toHaveProperty('created_at');
+        expect(body.article).toHaveProperty('votes');
+        expect(body.article).toHaveProperty('article_img_url');
         expect(typeof body.article.article_id).toBe('number');
         expect(typeof body.article.title).toBe('string');
         expect(typeof body.article.author).toBe('string');
@@ -296,8 +303,21 @@ describe('PATCH /api/articles/:article_id', () => {
         expect(typeof body.article.created_at).toBe('string');
         expect(typeof body.article.votes).toBe('number');
         expect(typeof body.article.article_img_url).toBe('string');
-
-        expect(body.article.votes).toBe(101);
+      });
+  });
+  test('PATCH:201 should update votes in DB by article_id and return correct data', () => {
+    return request(app)
+      .patch('/api/articles/1').send({ inc_votes: 1 })
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.article).toHaveProperty('article_id', 1);
+        expect(body.article).toHaveProperty('title', 'Living in the shadow of a great man');
+        expect(body.article).toHaveProperty('author', 'butter_bridge');
+        expect(body.article).toHaveProperty('topic', 'mitch');
+        expect(body.article).toHaveProperty('created_at', '2020-07-09T20:11:00.000Z');
+        expect(body.article).toHaveProperty('votes', 101);
+        expect(body.article)
+          .toHaveProperty('article_img_url', 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700');
       });
   });
   test('PATCH:201 should decrement the current article\'s vote property by 110', () => {
@@ -412,6 +432,43 @@ describe('DELETE /api/comments/:comment_id', () => {
           body.endpoints['DELETE /api/comments/:comment_id'])
           .toEqual(
             endpoints['DELETE /api/comments/:comment_id']);
+      });
+  });
+});
+describe('GET /api/users', () => {
+  test('GET:200 sends an array of users objects to the client with correct data type', () => {
+    return request(app).get('/api/users').expect(200).then(({ body }) => {
+      expect(body.users).toBeInstanceOf(Array);
+      expect(body.users.length === 4).toBe(true);
+      body.users.forEach((user) => {
+        expect(user).toBeInstanceOf(Object);
+        expect(user).toHaveProperty('username');
+        expect(user).toHaveProperty('name');
+        expect(user).toHaveProperty('avatar_url');
+        expect(typeof user.username).toBe('string');
+        expect(typeof user.name).toBe('string');
+        expect(typeof user.avatar_url).toBe('string');
+      });
+    });
+  });
+  test('GET:200 sends an array of users objects to the client with correct data', () => {
+    return request(app).get('/api/users').expect(200).then(({ body }) => {
+      expect(body.users[0]).toHaveProperty('username', 'butter_bridge');
+      expect(body.users[0]).toHaveProperty('name', 'jonny');
+      expect(body.users[0]).toHaveProperty('avatar_url', 'https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg');
+    });
+  });
+  test('The \'/api\' endpoint to include a description of this new \'/api/users\' endpoint.', () => {
+    return request(app)
+      .get('/api')
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.endpoints['GET /api/users'].exampleResponse)
+          .toBeInstanceOf(Object);
+        expect(body.endpoints['GET /api/users'].exampleResponse)
+          .toEqual(endpoints['GET /api/users'].exampleResponse);
       });
   });
 });
