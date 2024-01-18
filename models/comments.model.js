@@ -37,5 +37,27 @@ const insertCommentByArticleId = (comment) => {
     return result.rows[0];
   });
 };
+const fetchCommentByCommentId = (comment_id) => {
+  if (!/^\d+$/.test(comment_id)) {
+    throw new BadRequestError();
+  }
 
-module.exports = { fetchCommentsByArticleId, insertCommentByArticleId };
+  return db.query('SELECT * FROM comments WHERE comment_id = $1;',
+    [comment_id]).then((result) => {
+    if (!result.rows[0]) {
+      throw new NotFoundError('Comment does not exist');
+    }
+    return result.rows[0];
+  });
+};
+const deleteCommentByIdFromDB = (comment_id) => {
+
+  return fetchCommentByCommentId(comment_id).then(() => {
+    db.query('DELETE FROM comments WHERE comment_id = $1;',
+      [comment_id]).then((result) => {
+    });
+  });
+  
+};
+
+module.exports = { fetchCommentsByArticleId, insertCommentByArticleId, fetchCommentByCommentId, deleteCommentByIdFromDB };
