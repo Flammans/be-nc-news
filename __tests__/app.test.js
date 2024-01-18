@@ -373,3 +373,45 @@ describe('PATCH /api/articles/:article_id', () => {
       });
   });
 });
+describe('DELETE /api/comments/:comment_id', () => {
+  test('DELETE:204 should delete comment in DB by comment_id and return status 204 and no content.', () => {
+    return request(app)
+      .delete('/api/comments/1')
+      .expect(204)
+      .then(({ body }) => {
+        expect(body).toEqual({});
+      });
+  });
+  test('DELETE:400 sends an appropriate status and error message when given an invalid comment_id', () => {
+    return request(app)
+      .delete('/api/comments/not-valid-id')
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Bad Request');
+      });
+  });
+  test('DELETE:404 sends an appropriate status and error message when comment by comment_id not exist ', () => {
+    return request(app)
+      .delete('/api/comments/999')
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Comment does not exist');
+      });
+  });
+  test('The \'/api\' endpoint to include a description of this new DELETE \'/api/comments/:comment_id\' endpoint.', () => {
+    return request(app)
+      .get('/api')
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .then(({ body }) => {
+        expect(
+          body.endpoints['DELETE /api/comments/:comment_id'])
+          .toBeInstanceOf(Object);
+        expect(
+          body.endpoints['DELETE /api/comments/:comment_id'])
+          .toEqual(
+            endpoints['DELETE /api/comments/:comment_id']);
+      });
+  });
+});

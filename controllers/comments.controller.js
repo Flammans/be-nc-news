@@ -1,6 +1,6 @@
-const { fetchCommentsByArticleId, insertCommentByArticleId } = require(
-  '../models/comments.model');
-const { fetchArticleById } = require('../models/articles.model');
+const { fetchCommentsByArticleId, insertCommentByArticleId, deleteCommentByIdFromDB } = require('../models/comments.model');
+const { BadRequestError, NotFoundError } = require('../errors');
+const db = require('../db/connection');
 
 const getCommentsByArticleId = (request, response, next) => {
   const { article_id } = request.params;
@@ -30,4 +30,14 @@ const createCommentByArticleId = (request, response, next) => {
 
 };
 
-module.exports = { getCommentsByArticleId, createCommentByArticleId };
+const deleteCommentById = (request, response, next) => {
+  const { comment_id } = request.params;
+
+  deleteCommentByIdFromDB(comment_id).then(() => {
+    response.status(204).send();
+  }).catch((err) => {
+    next(err);
+  });
+};
+
+module.exports = { getCommentsByArticleId, createCommentByArticleId, deleteCommentById };
