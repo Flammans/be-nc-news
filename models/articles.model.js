@@ -16,15 +16,41 @@ const fetchArticleById = (article_id) => {
   });
 };
 
-const fetchArticles = () => {
-  return db.query(`select author, title, article_id, topic, created_at, votes, article_img_url,
-      (
-       SELECT count(*)
-       FROM comments
-       WHERE comments.article_id = articles.article_id
-      ) AS comment_count
-       FROM articles
-       ORDER BY created_at DESC;`).then((result) => {
+const fetchArticles = (articles) => {
+  let sortBy = 'created_at';
+  let orderBy = 'DESC';
+
+  if (articles.sort_by) {
+    if (!['title', 'created_at'].includes(articles.sort_by)) {
+      throw new BadRequestError();
+    }
+    sortBy = articles.sort_by;
+  }
+
+  if (articles.order) {
+    if (!['asc', 'ASC', 'desc', 'DESC'].includes(articles.order)) {
+      throw new BadRequestError();
+    }
+    orderBy = articles.order;
+  }
+
+  let sql = format(`
+      SELECT author, title, article_id, topic, created_at, votes, article_img_url,
+          (
+              SELECT count(*)
+              FROM comments
+              WHERE comments.article_id = articles.article_id
+          ) AS comment_count
+      FROM articles
+  `);
+
+  if (articles.topic) {
+    sql += format(' WHERE topic = %L', articles.topic);
+  }
+
+  sql += format(' ORDER BY %I %s', sortBy, orderBy);
+
+  return db.query(sql).then((result) => {
     if (!result.rows[0]) {
       throw new NotFoundError('Articles does not exist');
     }

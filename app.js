@@ -23,7 +23,6 @@ app.use((err, req, res, next) => {
   if (!(err instanceof AppError)) {
     err = new InternalServerError();
   }
-  // console.error(err);
   res.status(err.code).send({
     msg: err.message,
   });
