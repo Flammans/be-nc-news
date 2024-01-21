@@ -1,10 +1,16 @@
-const { fetchCommentsByArticleId, insertCommentByArticleId, deleteCommentByIdFromDB, patchVoteInCommentById } = require('../models/comments.model');
+const { fetchCommentsByArticleId, insertCommentByArticleId, deleteCommentByIdFromDB, patchVoteInCommentById, fetchCommentsCount } = require('../models/comments.model');
 
 const getCommentsByArticleId = (request, response, next) => {
-  const { article_id } = request.params;
-
-  fetchCommentsByArticleId(article_id).then((comments) => {
-    response.status(200).send({ comments });
+  const options = {
+    article_id: request.params.article_id,
+    page: request.query.p,
+    limit: request.query.limit,
+  };
+  Promise.all([
+    fetchCommentsCount(options),
+    fetchCommentsByArticleId(options),
+  ]).then(([total_count, comments]) => {
+    response.status(200).send({ comments, total_count });
   }).catch((err) => {
     next(err);
   });
