@@ -39,6 +39,72 @@ describe('GET /api/topics', () => {
       });
   });
 });
+describe('POST /api/topics', () => {
+  test('POST:201 should insert new topic to DB and return it', () => {
+
+    const newTopic = {
+      slug: 'Cat',
+      description: 'This vibrant red cat boasts a striking ginger coat that shines in the sun, complemented by deep green eyes full of curiosity. Agile and graceful, it moves with confidence, its playful demeanor and melodious purr adding a touch of joy to its surroundings.',
+    };
+
+    return request(app).post('/api/topics').send(newTopic)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.topic).toBeInstanceOf(Object);
+        expect(body.topic).toHaveProperty('slug', newTopic.slug);
+        expect(body.topic).toHaveProperty('description', newTopic.description);
+      });
+
+  });
+  test('POST:201 should ignore unused keys', () => {
+
+    const newTopic = {
+      slug: 'Cat',
+      description: 'This vibrant red cat boasts a striking ginger coat that shines in the sun, complemented by deep green eyes full of curiosity. Agile and graceful, it moves with confidence, its playful demeanor and melodious purr adding a touch of joy to its surroundings.',
+    };
+
+    newTopic.anotherKey = 'ignore-me';
+
+    return request(app)
+      .post('/api/topics').send(newTopic)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.topic).toBeInstanceOf(Object);
+        expect(body.topic).toHaveProperty('slug', newTopic.slug);
+        expect(body.topic).toHaveProperty('description', newTopic.description);
+        expect(body.topic.anotherKey).toBe(undefined);
+      });
+  });
+  test('POST:400 sends an appropriate status and error message when required key missed', () => {
+
+    const newTopic = {
+      description: 'Cat',
+    };
+
+    return request(app)
+      .post('/api/topics').send(newTopic)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Bad Request');
+      });
+  });
+  test('The \'/api\' endpoint to include a description of this new POST \'/api/topics\' endpoint.', () => {
+    return request(app)
+      .get('/api')
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .then(({ body }) => {
+        expect(
+          body.endpoints['POST /api/topics'].exampleResponse)
+          .toBeInstanceOf(Object);
+        expect(
+          body.endpoints['POST /api/topics'].exampleResponse)
+          .toEqual(
+            endpoints['POST /api/topics'].exampleResponse);
+      });
+  });
+});
 describe('GET /api/articles/:article_id', () => {
   test('GET:200 sends a single article to the client', () => {
     return request(app).get('/api/articles/1').expect(200).then(({ body }) => {
