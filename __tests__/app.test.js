@@ -376,6 +376,41 @@ describe('GET /api/articles/:article_id/comments', () => {
         expect(body.comments).toEqual(sortedArray);
       });
   });
+
+  test('GET:200 sends 5 comments when page 1 and limit comments per page 5', () => {
+    const page = 1;
+    const limit = 5;
+    return request(app).get(`/api/articles/1/comments?p=${page}&limit=${limit}`).expect(200).then(({ body }) => {
+      expect(body.comments).toBeInstanceOf(Array);
+      expect(body.comments.length === 5).toBe(true);
+    });
+  });
+  test('GET:200 sends 5 comments when page 2 and limit comments per page 5', () => {
+    const page = 2;
+    const limit = 5;
+    return request(app).get(`/api/articles/1/comments?p=${page}&limit=${limit}`).expect(200).then(({ body }) => {
+      expect(body.comments).toBeInstanceOf(Array);
+      expect(body.comments.length === 5).toBe(true);
+    });
+  });
+  test('GET:200 sends 1 comments when page 3 and limit comments per page 5', () => {
+    const page = 3;
+    const limit = 5;
+    return request(app).get(`/api/articles/1/comments?p=${page}&limit=${limit}`).expect(200).then(({ body }) => {
+      expect(body.comments).toBeInstanceOf(Array);
+      expect(body.comments.length === 1).toBe(true);
+    });
+  });
+  test('GET:200 sends 6 comments when page 2 and limit articles per page 10 with total_count property', () => {
+    const page = 1;
+    const limit = 10;
+    return request(app).get(`/api/articles/1/comments?p=${page}&limit=${limit}`).expect(200).then(({ body }) => {
+      expect(body.comments).toBeInstanceOf(Array);
+      expect(body.comments.length === 10).toBe(true);
+      expect(body.total_count).toBe(18);
+    });
+  });
+
   test('GET:400 sends an appropriate status and error message when given an invalid id', () => {
     return request(app)
       .get('/api/articles/not-valid-id/comments')
@@ -418,7 +453,7 @@ describe('POST /api/articles', () => {
     topic: 'cats',
     article_img_url: 'https://images.unsplash.com/photo-1599572739984-8ae9388f23b5?q=80&w=3870&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
   };
-
+ 
   test('POST:201 should insert new article to DB and return it', () => {
     return request(app).post('/api/articles/').send(newArticle)
       .expect(201)
