@@ -14,6 +14,21 @@
       ]
     }
   },
+  "POST /api/topics": {
+    "description": "creates a new topic",
+    "requestBody": [
+      "slug",
+      "description"
+    ],
+    "exampleResponse": {
+      "topics": [
+        {
+          "slug": "topic name here",
+          "description": "description here"
+        }
+      ]
+    }
+  },
   "GET /api/articles": {
     "description": "serves an array of all articles by queries",
     "queries": [
