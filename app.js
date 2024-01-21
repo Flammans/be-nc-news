@@ -1,27 +1,20 @@
 const express = require('express');
 const app = express();
-const { getTopics } = require('./controllers/topics.controller');
-const { getEndpoints } = require('./controllers/endpoints.controller');
-const { getArticleById, getArticles, updateVoteInArticleById, createArticle, deleteArticleById } = require('./controllers/articles.controller');
 const { AppError, InternalServerError } = require('./errors');
-const { getCommentsByArticleId, createCommentByArticleId, deleteCommentById, updateVoteInCommentById } = require('./controllers/comments.controller');
-const { getUsers, getUserByUserName } = require('./controllers/users.controller');
+const apiRouter = require('./routes/api.router');
+const topicsRouter = require('./routes/topics.router');
+const articlesRouter = require('./routes/articles.router');
+const commentsRouter = require('./routes/comments.router');
+const usersRouter = require('./routes/users.router');
 
 app.use(express.json());
-
-app.get('/api/', getEndpoints);
-app.get('/api/topics', getTopics);
-app.get('/api/articles', getArticles);
-app.get('/api/articles/:article_id', getArticleById);
-app.get('/api/articles/:article_id/comments', getCommentsByArticleId);
-app.post('/api/articles', createArticle);
-app.post('/api/articles/:article_id/comments', createCommentByArticleId);
-app.patch('/api/articles/:article_id', updateVoteInArticleById);
-app.delete('/api/articles/:article_id', deleteArticleById);
-app.delete('/api/comments/:comment_id', deleteCommentById);
-app.patch('/api/comments/:comment_id', updateVoteInCommentById);
-app.get('/api/users', getUsers);
-app.get('/api/users/:username', getUserByUserName);
+app.use('/api', express.Router()
+  .use('/', apiRouter)
+  .use('/topics', topicsRouter)
+  .use('/articles', articlesRouter)
+  .use('/comments', commentsRouter)
+  .use('/users', usersRouter),
+);
 
 app.use((err, req, res, next) => {
   if (!(err instanceof AppError)) {
