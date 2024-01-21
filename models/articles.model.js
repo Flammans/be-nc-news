@@ -20,23 +20,53 @@ const fetchArticleById = (article_id) => {
     return result.rows[0];
   });
 };
+const filterArticles = (options) => {
+  let sql = '';
+  const conditions = [];
 
-const fetchArticles = (articles) => {
-  let sortBy = 'created_at';
-  let orderBy = 'DESC';
-
-  if (articles.sort_by) {
-    if (!['title', 'created_at'].includes(articles.sort_by)) {
-      throw new BadRequestError();
-    }
-    sortBy = articles.sort_by;
+  if (options.topic) {
+    conditions.push(format('topic = %L', options.topic));
   }
 
-  if (articles.order) {
-    if (!['asc', 'ASC', 'desc', 'DESC'].includes(articles.order)) {
+  if (options.author) {
+    conditions.push(format('author = %L', options.author));
+  }
+
+  if (conditions.length) {
+    sql += ' WHERE ' + conditions.join(' AND ');
+  }
+
+  return sql;
+};
+const fetchArticlesCount = (options) => {
+  let sql = format(`SELECT COUNT(*) as total_count FROM articles`);
+
+  sql += filterArticles(options);
+
+  return db.query(sql).then((result) => {
+    return parseInt(result.rows[0].total_count);
+  });
+};
+
+const fetchArticles = (options) => {
+  let sortBy = 'created_at';
+  let orderBy = 'DESC';
+  let limit = parseInt(options.limit) || 10;
+  let page = parseInt(options.page) || 1;
+  let offset = limit * (page - 1);
+
+  if (options.sort_by) {
+    if (!['title', 'created_at'].includes(options.sort_by)) {
       throw new BadRequestError();
     }
-    orderBy = articles.order;
+    sortBy = options.sort_by;
+  }
+
+  if (options.order) {
+    if (!['asc', 'ASC', 'desc', 'DESC'].includes(options.order)) {
+      throw new BadRequestError();
+    }
+    orderBy = options.order;
   }
 
   let sql = format(`
@@ -49,11 +79,11 @@ const fetchArticles = (articles) => {
       FROM articles
   `);
 
-  if (articles.topic) {
-    sql += format(' WHERE topic = %L', articles.topic);
-  }
+  sql += filterArticles(options);
 
   sql += format(' ORDER BY %I %s', sortBy, orderBy);
+
+  sql += ` LIMIT ${limit} OFFSET ${offset}`;
 
   return db.query(sql).then((result) => {
     if (!result.rows[0]) {
@@ -111,4 +141,4 @@ const deleteArticleByIdFromDB = (article_id) => {
   });
 };
 
-module.exports = { fetchArticleById, fetchArticles, patchVoteInArticleById, insertArticle, deleteArticleByIdFromDB };
+module.exports = { fetchArticleById, fetchArticles, patchVoteInArticleById, insertArticle, deleteArticleByIdFromDB, fetchArticlesCount };

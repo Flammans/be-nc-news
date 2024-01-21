@@ -182,7 +182,7 @@ describe('GET /api/articles', () => {
   test('GET:200 sends all articles when no topic is specified with correct properties and data types', () => {
     return request(app).get('/api/articles').expect(200).then(({ body }) => {
       expect(body.articles).toBeInstanceOf(Array);
-      expect(body.articles.length === 13).toBe(true);
+      expect(body.articles.length === 10).toBe(true);
       expect(body.articles).toBeInstanceOf(Array);
 
       body.articles.forEach((article) => {
@@ -228,9 +228,22 @@ describe('GET /api/articles', () => {
       expect(body.articles).toBeSortedBy('created_at', {
         descending: true,
       });
-      expect(body.articles.length === 12).toBe(true);
+      expect(body.articles.length === 10).toBe(true);
       body.articles.forEach((article) => {
         expect(article).toHaveProperty('topic', 'mitch');
+      });
+    });
+  });
+  test('GET:200 sends all filtered articles when an author is specified in the correct order', () => {
+    const author = 'butter_bridge';
+    return request(app).get(`/api/articles?author=${author}`).expect(200).then(({ body }) => {
+      expect(body.articles).toBeInstanceOf(Array);
+      expect(body.articles).toBeSortedBy('created_at', {
+        descending: true,
+      });
+      expect(body.articles.length === 4).toBe(true);
+      body.articles.forEach((article) => {
+        expect(article).toHaveProperty('author', 'butter_bridge');
       });
     });
   });
@@ -239,7 +252,7 @@ describe('GET /api/articles', () => {
     return request(app).get(`/api/articles?topic=${topic}&order=ASC`).expect(200).then(({ body }) => {
       expect(body.articles).toBeInstanceOf(Array);
       expect(body.articles).toBeSortedBy('created_at');
-      expect(body.articles.length === 12).toBe(true);
+      expect(body.articles.length === 10).toBe(true);
       body.articles.forEach((article) => {
         expect(article).toHaveProperty('topic', 'mitch');
       });
@@ -251,10 +264,57 @@ describe('GET /api/articles', () => {
     return request(app).get(`/api/articles?topic=${topic}&order=ASC&sort_by=${sort_by}`).expect(200).then(({ body }) => {
       expect(body.articles).toBeInstanceOf(Array);
       expect(body.articles).toBeSortedBy('title');
-      expect(body.articles.length === 12).toBe(true);
+      expect(body.articles.length === 10).toBe(true);
       body.articles.forEach((article) => {
         expect(article).toHaveProperty('topic', 'mitch');
       });
+    });
+  });
+  test('GET:200 sends 5 articles when page 1 and limit articles per page 5', () => {
+    const page = 1;
+    const limit = 5;
+    return request(app).get(`/api/articles?p=${page}&limit=${limit}`).expect(200).then(({ body }) => {
+      expect(body.articles).toBeInstanceOf(Array);
+      expect(body.articles.length === 5).toBe(true);
+    });
+  });
+  test('GET:200 sends 5 articles when page 2 and limit articles per page 5', () => {
+    const page = 2;
+    const limit = 5;
+    return request(app).get(`/api/articles?p=${page}&limit=${limit}`).expect(200).then(({ body }) => {
+      expect(body.articles).toBeInstanceOf(Array);
+      expect(body.articles.length === 5).toBe(true);
+    });
+  });
+  test('GET:200 sends 3 articles when page 3 and limit articles per page 5', () => {
+    const page = 3;
+    const limit = 5;
+    return request(app).get(`/api/articles?p=${page}&limit=${limit}`).expect(200).then(({ body }) => {
+      expect(body.articles).toBeInstanceOf(Array);
+      expect(body.articles.length === 3).toBe(true);
+    });
+  });
+  test('GET:200 sends 5 articles when page 2 and limit articles per page 5 all filtered articles when a topic is specified in ascending order should be sorted by title column', () => {
+    const page = 1;
+    const limit = 5;
+    const topic = 'mitch';
+    const sort_by = 'title';
+    return request(app).get(`/api/articles?p=${page}&limit=${limit}&topic=${topic}&order=ASC&sort_by=${sort_by}`).expect(200).then(({ body }) => {
+      expect(body.articles).toBeInstanceOf(Array);
+      expect(body.articles.length === 5).toBe(true);
+      expect(body.articles).toBeSortedBy('title');
+      body.articles.forEach((article) => {
+        expect(article).toHaveProperty('topic', 'mitch');
+      });
+    });
+  });
+  test('GET:200 sends 10 articles when page 2 and limit articles per page 10 with total_count property', () => {
+    const page = 1;
+    const limit = 10;
+    return request(app).get(`/api/articles?p=${page}&limit=${limit}`).expect(200).then(({ body }) => {
+      expect(body.articles).toBeInstanceOf(Array);
+      expect(body.articles.length === 10).toBe(true);
+      expect(body.total_count).toBe(13);
     });
   });
   test('GET:400 sends an appropriate status and error message when given an invalid endpoint', () => {
