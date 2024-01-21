@@ -1,4 +1,5 @@
-const { fetchArticleById, fetchArticles, patchVoteInArticleById, insertArticle, deleteArticleByIdFromDB } = require('../models/articles.model');
+const { fetchArticleById, fetchArticles, patchVoteInArticleById, insertArticle, deleteArticleByIdFromDB, fetchArticlesCount } = require(
+  '../models/articles.model');
 
 const getArticleById = (request, response, next) => {
 
@@ -13,15 +14,20 @@ const getArticleById = (request, response, next) => {
 
 const getArticles = (request, response, next) => {
 
-  const articles = {
+  const options = {
     author: request.query.author,
     topic: request.query.topic,
     sort_by: request.query.sort_by,
     order: request.query.order,
+    page: request.query.p,
+    limit: request.query.limit,
   };
 
-  fetchArticles(articles).then((articles) => {
-    response.status(200).send({ articles });
+  Promise.all([
+    fetchArticlesCount(options),
+    fetchArticles(options),
+  ]).then(([total_count, articles]) => {
+    response.status(200).send({ articles, total_count });
   }).catch((err) => {
     next(err);
   });

@@ -35,7 +35,9 @@
       "author",
       "topic",
       "sort_by",
-      "order"
+      "order",
+      "limit",
+      "p"
     ],
     "exampleResponse": {
       "articles": [
@@ -48,7 +50,8 @@
           "votes": 0,
           "comment_count": 6
         }
-      ]
+      ],
+      "total_count": 36
     }
   },
   "GET /api/articles/:article_id": {
