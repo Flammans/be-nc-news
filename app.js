@@ -6,7 +6,9 @@ const topicsRouter = require('./routes/topics.router');
 const articlesRouter = require('./routes/articles.router');
 const commentsRouter = require('./routes/comments.router');
 const usersRouter = require('./routes/users.router');
+const cors = require('cors');
 
+app.use(cors());
 app.use(express.json());
 app.use('/api', express.Router()
   .use('/', apiRouter)
