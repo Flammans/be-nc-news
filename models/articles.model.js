@@ -56,7 +56,7 @@ const fetchArticles = (options) => {
   let offset = limit * (page - 1);
 
   if (options.sort_by) {
-    if (!['title', 'created_at'].includes(options.sort_by)) {
+    if (!['title', 'created_at', 'author', 'comment_count', 'votes'].includes(options.sort_by)) {
       throw new BadRequestError();
     }
     sortBy = options.sort_by;
