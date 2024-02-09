@@ -7,7 +7,7 @@ user data programmatically.
 
 ## Hosted Version
 
-The API is hosted at [nc-news-u5o8.onrender.com](https://nc-news-u5o8.onrender.com/api). Feel free to interact with the live version of the API.
+The API is hosted at [api.nc-news.viktorkhasenko.com/api](https://api.nc-news.viktorkhasenko.com/api). Feel free to interact with the live version of the API.
 
 ## Getting Started
 
